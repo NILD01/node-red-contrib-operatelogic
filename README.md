@@ -21,21 +21,15 @@ Mode can be set if:
 - `msg.mode = "manual"` or `"auto"`
 
 ### Start Commands
-Start command in manual mode:
-- `msg.manual = true` or `false` (boolean)
+Start/stop command in manual mode:
+- `msg.manual = true`/`false` (boolean)
 
-Start command in auto mode:
-- `msg.auto = true` or `false` (boolean)
+Start/stop command in auto mode:
+- `msg.auto = true`/`false` (boolean)
 
-Stop commands will always be accepted. For example:
-- In manual mode, you can give a stop command via `msg.manual`, but also a stop command via `msg.auto` will be accepted.
-- In auto mode, you can give a stop command via `msg.auto`, but also a stop command via `msg.manual` will be accepted.
-
-Start commands will not be accepted from opposite modes. For example:
-- In manual mode, a start command from `msg.auto` will not be accepted.
-- In auto mode, a start command from `msg.manual` will not be accepted.
-
-You can change the mode to auto/manual only when the output/state is `"off"`.
+Start/stop commands will not be accepted from opposite modes. For example:
+- In manual mode, a start/stop command from `msg.auto` will not be accepted.
+- In auto mode, a start/stop command from `msg.manual` will not be accepted.
 
 ## Rules
 
@@ -46,7 +40,7 @@ Rules can be added/removed. In these rules, you can check flow or global variabl
 - `<`: less
 - `incl`: includes
 
-![rules.png](./img/rules.png)
+![rules.png](img/rules.png)
 
 For every rule, you can choose in which mode it has to be checked.
 
@@ -61,9 +55,78 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
 ```json
 [
     {
+        "id": "08b2a9db27f711d5",
+        "type": "OperateLogic",
+        "z": "47ba3e0620759d93",
+        "name": "",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "bool",
+                "propertyType": "global",
+                "property": "test1",
+                "checkboxmanual": true,
+                "checkboxauto": false,
+                "LogicText": "example1"
+            },
+            {
+                "t": "lt",
+                "v": "40",
+                "vt": "num",
+                "propertyType": "flow",
+                "property": "test2",
+                "checkboxmanual": true,
+                "checkboxauto": false,
+                "LogicText": "example2"
+            },
+            {
+                "t": "gt",
+                "v": "40",
+                "vt": "num",
+                "propertyType": "flow",
+                "property": "test3",
+                "checkboxmanual": false,
+                "checkboxauto": true,
+                "LogicText": ""
+            },
+            {
+                "t": "incl",
+                "v": "on",
+                "vt": "str",
+                "propertyType": "flow",
+                "property": "test4",
+                "checkboxmanual": false,
+                "checkboxauto": true,
+                "LogicText": "example4"
+            }
+        ],
+        "restartafterfault": true,
+        "checktime": 1,
+        "initialisemode": "manual",
+        "stateon": "on",
+        "stateontype": "str",
+        "stateoff": "off",
+        "stateofftype": "str",
+        "x": 1100,
+        "y": 1180,
+        "wires": [
+            [
+                "0ba9b502ad91cb0a",
+                "b845057586a8bdb7"
+            ],
+            [
+                "c94080596beb7116"
+            ],
+            [
+                "f959261223a4bf35"
+            ]
+        ]
+    },
+    {
         "id": "d7e730c066b83e63",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -81,8 +144,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "false",
         "payloadType": "bool",
-        "x": 230,
-        "y": 100,
+        "x": 670,
+        "y": 620,
         "wires": [
             [
                 "31fefdc4ee84f667"
@@ -92,7 +155,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "31fefdc4ee84f667",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "test1",
         "func": "global.set(\"test1\", msg.payload);\nreturn msg;",
         "outputs": 1,
@@ -101,8 +164,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 120,
+        "x": 850,
+        "y": 640,
         "wires": [
             []
         ]
@@ -110,7 +173,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "f850912add4976ed",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "test2",
         "func": "flow.set(\"test2\", msg.payload);\nreturn msg;",
         "outputs": 1,
@@ -119,8 +182,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 200,
+        "x": 850,
+        "y": 720,
         "wires": [
             []
         ]
@@ -128,7 +191,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "28d05662be3fdf66",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -146,8 +209,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "true",
         "payloadType": "bool",
-        "x": 230,
-        "y": 140,
+        "x": 670,
+        "y": 660,
         "wires": [
             [
                 "31fefdc4ee84f667"
@@ -157,7 +220,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "89f392ffb154bbed",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -171,8 +234,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "30",
         "payloadType": "num",
-        "x": 230,
-        "y": 180,
+        "x": 670,
+        "y": 700,
         "wires": [
             [
                 "f850912add4976ed"
@@ -182,7 +245,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "12284cc275c0052d",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -200,8 +263,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "50",
         "payloadType": "num",
-        "x": 230,
-        "y": 220,
+        "x": 670,
+        "y": 740,
         "wires": [
             [
                 "f850912add4976ed"
@@ -211,7 +274,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c94080596beb7116",
         "type": "ui_table",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "group": "3ca64bf4d64c922b",
         "name": "prerequisites",
         "order": 15,
@@ -241,14 +304,14 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         ],
         "outputs": 0,
         "cts": false,
-        "x": 930,
-        "y": 660,
+        "x": 1370,
+        "y": 1180,
         "wires": []
     },
     {
         "id": "e775e2cd0af18fe2",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "test3",
         "func": "flow.set(\"test3\", msg.payload);\nreturn msg;",
         "outputs": 1,
@@ -257,8 +320,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 280,
+        "x": 850,
+        "y": 800,
         "wires": [
             []
         ]
@@ -266,7 +329,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "3da64dab8606e62a",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -280,8 +343,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "50",
         "payloadType": "num",
-        "x": 230,
-        "y": 300,
+        "x": 670,
+        "y": 820,
         "wires": [
             [
                 "e775e2cd0af18fe2"
@@ -291,7 +354,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "63ea8b05989c2e58",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -309,8 +372,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "30",
         "payloadType": "num",
-        "x": 230,
-        "y": 260,
+        "x": 670,
+        "y": 780,
         "wires": [
             [
                 "e775e2cd0af18fe2"
@@ -320,7 +383,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "d53621fcd15ac283",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "auto true",
         "props": [
             {
@@ -334,8 +397,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "true",
         "payloadType": "bool",
-        "x": 220,
-        "y": 720,
+        "x": 660,
+        "y": 1240,
         "wires": [
             [
                 "c6ce90f0ff0aff6a"
@@ -345,7 +408,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "45f7af7eb96d0985",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "false",
         "props": [
             {
@@ -359,8 +422,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "false",
         "payloadType": "bool",
-        "x": 230,
-        "y": 760,
+        "x": 670,
+        "y": 1280,
         "wires": [
             [
                 "c6ce90f0ff0aff6a"
@@ -370,7 +433,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c6aad0e7dc138bf2",
         "type": "ui_text",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "group": "3ca64bf4d64c922b",
         "order": 8,
         "width": 3,
@@ -384,14 +447,14 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "font": "",
         "fontSize": 16,
         "color": "#000000",
-        "x": 1110,
-        "y": 700,
+        "x": 1550,
+        "y": 1220,
         "wires": []
     },
     {
         "id": "3b3ffd7b6cd4575f",
         "type": "ui_button",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "group": "3ca64bf4d64c922b",
         "order": 5,
@@ -408,8 +471,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "payloadType": "bool",
         "topic": "topic",
         "topicType": "msg",
-        "x": 230,
-        "y": 640,
+        "x": 670,
+        "y": 1160,
         "wires": [
             [
                 "ca72660986bbb348"
@@ -419,7 +482,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "bbf5f545a11e6193",
         "type": "ui_button",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "group": "3ca64bf4d64c922b",
         "order": 6,
@@ -436,8 +499,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "payloadType": "bool",
         "topic": "topic",
         "topicType": "msg",
-        "x": 230,
-        "y": 680,
+        "x": 670,
+        "y": 1200,
         "wires": [
             [
                 "ca72660986bbb348"
@@ -447,7 +510,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "ca72660986bbb348",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "operate manual",
         "func": "\n\nmsg.manual = msg.payload\n\n\nreturn msg;\n",
         "outputs": 1,
@@ -456,18 +519,18 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
-        "y": 660,
+        "x": 860,
+        "y": 1180,
         "wires": [
             [
-                "0d62ff50dd417dc8"
+                "08b2a9db27f711d5"
             ]
         ]
     },
     {
         "id": "f959261223a4bf35",
         "type": "ui_text",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "group": "3ca64bf4d64c922b",
         "order": 9,
         "width": 2,
@@ -481,14 +544,14 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "font": "",
         "fontSize": 16,
         "color": "#000000",
-        "x": 910,
-        "y": 700,
+        "x": 1350,
+        "y": 1220,
         "wires": []
     },
     {
         "id": "f871ea486ef3a73a",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "test4",
         "func": "flow.set(\"test4\", msg.payload);\nreturn msg;",
         "outputs": 1,
@@ -497,8 +560,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 360,
+        "x": 850,
+        "y": 880,
         "wires": [
             []
         ]
@@ -506,7 +569,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "27ee58c51701ab01",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -520,8 +583,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "TV is off.",
         "payloadType": "str",
-        "x": 220,
-        "y": 340,
+        "x": 660,
+        "y": 860,
         "wires": [
             [
                 "f871ea486ef3a73a"
@@ -531,7 +594,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c38979d5e22fa637",
         "type": "inject",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "props": [
             {
@@ -549,8 +612,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "topic": "",
         "payload": "TV is on.",
         "payloadType": "str",
-        "x": 220,
-        "y": 380,
+        "x": 660,
+        "y": 900,
         "wires": [
             [
                 "f871ea486ef3a73a"
@@ -560,7 +623,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c5f4cd52877f4a74",
         "type": "ui_button",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "group": "3ca64bf4d64c922b",
         "order": 2,
@@ -577,8 +640,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "payloadType": "str",
         "topic": "topic",
         "topicType": "msg",
-        "x": 230,
-        "y": 560,
+        "x": 670,
+        "y": 1080,
         "wires": [
             [
                 "38dfcf65ab8c0b8a"
@@ -588,7 +651,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c0ded006b33858c9",
         "type": "ui_button",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "",
         "group": "3ca64bf4d64c922b",
         "order": 3,
@@ -605,8 +668,8 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "payloadType": "str",
         "topic": "topic",
         "topicType": "msg",
-        "x": 220,
-        "y": 600,
+        "x": 660,
+        "y": 1120,
         "wires": [
             [
                 "38dfcf65ab8c0b8a"
@@ -616,7 +679,7 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
     {
         "id": "c6ce90f0ff0aff6a",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "operate auto",
         "func": "\n\nmsg.auto = msg.payload\n\n\nreturn msg;\n",
         "outputs": 1,
@@ -625,18 +688,18 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 430,
-        "y": 740,
+        "x": 870,
+        "y": 1260,
         "wires": [
             [
-                "0d62ff50dd417dc8"
+                "08b2a9db27f711d5"
             ]
         ]
     },
     {
         "id": "b845057586a8bdb7",
         "type": "ui_text",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "group": "3ca64bf4d64c922b",
         "order": 12,
         "width": 2,
@@ -650,14 +713,14 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "font": "",
         "fontSize": 16,
         "color": "#000000",
-        "x": 910,
-        "y": 620,
+        "x": 1350,
+        "y": 1140,
         "wires": []
     },
     {
         "id": "b24747fad861a389",
         "type": "ui_text",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "group": "3ca64bf4d64c922b",
         "order": 11,
         "width": 3,
@@ -671,14 +734,14 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "font": "",
         "fontSize": 16,
         "color": "#000000",
-        "x": 1070,
-        "y": 620,
+        "x": 1510,
+        "y": 1140,
         "wires": []
     },
     {
         "id": "38dfcf65ab8c0b8a",
         "type": "function",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "operate mode",
         "func": "\n\nmsg.mode = msg.payload\n\n\nreturn msg;\n",
         "outputs": 1,
@@ -687,107 +750,38 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
-        "y": 580,
+        "x": 860,
+        "y": 1100,
         "wires": [
             [
-                "0d62ff50dd417dc8"
-            ]
-        ]
-    },
-    {
-        "id": "0d62ff50dd417dc8",
-        "type": "lower-case",
-        "z": "42a3344c7f839b4f",
-        "name": "",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "true",
-                "vt": "bool",
-                "propertyType": "global",
-                "property": "test1",
-                "checkboxmanual": true,
-                "checkboxauto": false,
-                "LogicText": "example1"
-            },
-            {
-                "t": "lt",
-                "v": "40",
-                "vt": "num",
-                "propertyType": "flow",
-                "property": "test2",
-                "checkboxmanual": true,
-                "checkboxauto": false,
-                "LogicText": "example2"
-            },
-            {
-                "t": "gt",
-                "v": "40",
-                "vt": "num",
-                "propertyType": "flow",
-                "property": "test3",
-                "checkboxmanual": true,
-                "checkboxauto": true,
-                "LogicText": "example3"
-            },
-            {
-                "t": "incl",
-                "v": "on",
-                "vt": "str",
-                "propertyType": "flow",
-                "property": "test4",
-                "checkboxmanual": false,
-                "checkboxauto": true,
-                "LogicText": "example4"
-            }
-        ],
-        "restartafterfault": true,
-        "checktime": 1,
-        "initialisemode": "manual",
-        "stateon": "on",
-        "stateontype": "str",
-        "stateoff": "off",
-        "stateofftype": "str",
-        "x": 650,
-        "y": 660,
-        "wires": [
-            [
-                "b845057586a8bdb7",
-                "0ba9b502ad91cb0a"
-            ],
-            [
-                "c94080596beb7116"
-            ],
-            [
-                "f959261223a4bf35"
+                "08b2a9db27f711d5"
             ]
         ]
     },
     {
         "id": "37bc3f13c7379afa",
         "type": "comment",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "I/O",
         "info": "",
-        "x": 230,
-        "y": 60,
+        "x": 670,
+        "y": 580,
         "wires": []
     },
     {
         "id": "e4ea15396167c799",
         "type": "comment",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "Operate and Logic",
         "info": "",
-        "x": 190,
-        "y": 500,
+        "x": 630,
+        "y": 1020,
         "wires": []
     },
     {
         "id": "0ba9b502ad91cb0a",
         "type": "debug",
-        "z": "42a3344c7f839b4f",
+        "z": "47ba3e0620759d93",
         "name": "Output",
         "active": true,
         "tosidebar": true,
@@ -797,15 +791,15 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 910,
-        "y": 580,
+        "x": 1350,
+        "y": 1100,
         "wires": []
     },
     {
         "id": "3ca64bf4d64c922b",
         "type": "ui_group",
         "name": "Default",
-        "tab": "410c94094f03e7a0",
+        "tab": "99b6b837d20e34a1",
         "order": 1,
         "disp": true,
         "width": "6",
@@ -813,11 +807,13 @@ Below is an example flow demonstrating how to use the **"OperateLogic"** node:
         "className": ""
     },
     {
-        "id": "410c94094f03e7a0",
+        "id": "99b6b837d20e34a1",
         "type": "ui_tab",
-        "name": "Home",
+        "name": "Ventilator douche",
         "icon": "dashboard",
+        "order": 12,
         "disabled": false,
         "hidden": false
     }
 ]
+```

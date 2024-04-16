@@ -64,17 +64,20 @@ module.exports = function(RED) {
             msg.fault = false
 
             mode = context.get("mode" + nodeId)
-
-            if ((mode == "auto") && (msg.auto == true)) {
-                msg.cmd = true
-            }
+   
             if ((mode == "manual") && (msg.manual == true)) {
                 msg.cmd = true
-            }          
-            if ((msg.auto == false)||(msg.manual == false)){
+            } 
+            if ((mode == "manual") && (msg.manual == false)) {
                 msg.cmd = false
-            }                 
-           
+            }      
+            if ((mode == "auto") && (msg.auto == true)) {
+                msg.cmd = true
+            }     
+            if ((mode == "auto") && (msg.auto == false)) {
+                msg.cmd = false
+            }
+       
             if (msg.fault == false) {
                 if (msg.cmd == false){
                     clearInterval(interval);
