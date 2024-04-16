@@ -57,7 +57,7 @@ module.exports = function(RED) {
 
         this.on("input", function(msg) {
             if((msg.mode == "manual")||(msg.mode == "auto")){
-                context.set("mode" + nodeId, msg.payload);
+                context.set("mode" + nodeId, msg.mode);
                 node.send([null,null,{payload:context.get("mode" + nodeId)}]);
             }
 
