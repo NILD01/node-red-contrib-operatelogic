@@ -1,0 +1,257 @@
+<script type="text/javascript">
+    RED.nodes.registerType('OperateLogic', {
+        category: 'function',
+        color: '#FF5733',
+        defaults: {
+            name: {value: "" },
+            rules: {},
+            restartafterfault:  { value: "checked"},
+            checktime:  { value: 1, required: true} ,
+            initialisemode: { value: "manual"},
+            stateon: { value: "on", required: true},
+            stateontype: { value: "str"},   
+            stateoff: { value: "off", required: true},
+            stateofftype: { value: "str"},
+
+        },
+        inputs: 1,
+        outputs: 3,
+        icon: "font-awesome/fa-cogs",
+        label: function () {
+            return this.name || "OperateLogic";
+        },
+        oneditprepare: function () {
+
+            var node = this;     
+
+            var operators = [
+                { v: "eq", t: "==" },
+                { v: "neq", t: "!=" },
+                { v: "lt", t: "<" },
+                { v: "gt", t: ">" },
+                { v: "incl", t: "incl" },
+            ];
+
+            function resizeRule(rule) {
+                var propertyField = rule.find(".node-input-rule-property");
+                var selectField = rule.find("select");
+                var valueField1 = rule.find(".node-input-rule-value-1");
+                var valueField2 = rule.find(".node-input-rule-value-2");
+                var valueField3 = rule.find(".node-input-rule-value-3");
+            }
+
+            $("#node-input-stateon").typedInput({
+                type:'str',
+                types:['str','num','bool'],
+                typeField: "#node-input-stateontype"
+            });
+
+            $("#node-input-stateoff").typedInput({
+                type:'str',
+                types:['str','num','bool'],
+                typeField: "#node-input-stateofftype",
+            });
+
+            $("#node-input-rule-container").css('min-height', '250px').css('min-width', '450px').editableList({
+                addItem: function (container, i, opt) { 
+                    
+                    var rule = opt;
+
+                    // If t isn't defined, set equal as default value
+                    if (!rule.hasOwnProperty('t')) {
+                        rule.t = 'eq';
+                    }
+
+                    //var propertyRow = $('<div/>', { style: "padding-top: 5px; display: flex; align-items: center;" }).appendTo(container);
+                    var propertyRow = $('<div/>', { style: "padding-top: 5px; display: flex; align-items: center;" }).appendTo(container);
+                    var LogicTextRow = $('<div/>', { style: "padding-top: 5px; display: flex; align-items: center;" }).appendTo(container);
+
+                    var fixedWidth = '150px';
+                    var propertyField = $('<input/>', { class: "node-input-rule-property", type: "text", style: "margin-left: 5px; width:" + fixedWidth + ";"}).appendTo(propertyRow).typedInput({ default: rule.propertyType || 'flow', types: ['flow', 'global'] });
+
+                    var fixedWidthselectField = '70px';
+                    var selectField = $('<select/>', { style: "width:" + fixedWidthselectField + "; margin-left: 5px; text-align: center;"}).appendTo(propertyRow);
+                    for (var d in operators) {
+                        selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
+                    }           
+
+                    var fixedWidthvalueField = '150px';
+                    var valueField1 = $('<input/>', { class: "node-input-rule-value-1", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'num','bool', 'flow', 'global'] });
+                    var valueField2 = $('<input/>', { class: "node-input-rule-value-2", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'num', 'flow', 'global'] });
+                    var valueField3 = $('<input/>', { class: "node-input-rule-value-3", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'flow', 'global'] });  
+                    
+                    var LabelManual = "manual";
+                    var LabelAuto = "auto";
+                    var fixedWidthcheckbox = '20px';
+                    var TextManual = $('<span/>', { class: "node-input-rule-btwn-label",style: "margin-left: 25px;"}).text(" " + LabelManual + " ").appendTo(propertyRow);
+                    var checkboxmanual =$('<input/>', { class: "node-input-checkboxmanual", type: "checkbox", style: "margin-left: 5px; width:" + fixedWidthcheckbox + ";"}).appendTo(propertyRow); 
+                    var TextAuto = $('<span/>', { class: "node-input-rule-btwn-label",style: "margin-left: 25px;"}).text(" " + LabelAuto + " ").appendTo(propertyRow);
+                    var checkboxauto =$('<input/>', { class: "node-input-checkboxauto", type: "checkbox", style: "margin-left: 5px; width:" + fixedWidthcheckbox + ";"}).appendTo(propertyRow);
+                    
+                    var fixedWidthLogicText = '550px';
+                    var LogicText =$('<input/>', { class: "node-input-LogicText", type: "text", style: "margin-left: 5px; width:" + fixedWidthLogicText + ";", placeholder: "Type text of your logic here..."}).appendTo(LogicTextRow); 
+
+                    selectField.change(function () {
+                        resizeRule(container);
+                        var selected = selectField.val() || "eq";
+                        switch (selected) {
+                            case "eq": {
+                                valueField1.typedInput('show');
+                                valueField2.typedInput('hide');
+                                valueField3.typedInput('hide');
+                                break;
+                            }
+                            case "neq": {
+                                valueField1.typedInput('show');
+                                valueField2.typedInput('hide');
+                                valueField3.typedInput('hide');
+                                break;
+                            }
+                            case "lt":{
+                                valueField1.typedInput('hide');
+                                valueField2.typedInput('show');
+                                valueField3.typedInput('hide');
+                                break;
+                            }
+                            case "gt":{
+                                valueField1.typedInput('hide');
+                                valueField2.typedInput('show');
+                                valueField3.typedInput('hide');
+                                break;
+                            }
+                            case "incl":{
+                                valueField1.typedInput('hide');
+                                valueField2.typedInput('hide');
+                                valueField3.typedInput('show');
+                                break;
+                            }
+                            default: {
+                                valueField1.typedInput('show');
+                                valueField2.typedInput('hide');
+                                valueField3.typedInput('hide');
+                                break;
+                            }
+                        }
+                    });
+
+                    //save the selected field
+                    selectField.val(rule.t);
+
+                    //set value as defined
+                    propertyField.typedInput('value', rule.property || '');
+                    propertyField.typedInput('type', rule.propertyType || 'flow');
+
+                    checkboxmanual.prop('checked', rule.checkboxmanual);
+                    checkboxauto.prop('checked', rule.checkboxauto);
+
+                    LogicText.val(rule.LogicText);
+
+                    if ((rule.t == "eq")||(rule.t == "neq")) {
+                        valueField1.typedInput('value', rule.v);
+                        valueField1.typedInput('type', rule.vt || 'str');
+                    }
+                    else if ((rule.t == "lt")||(rule.t == "gt")) {
+                        valueField2.typedInput('value', rule.v);
+                        valueField2.typedInput('type', rule.vt || 'str');
+                    }
+                    else{
+                        valueField3.typedInput('value', rule.v);
+                        valueField3.typedInput('type', rule.vt || 'str');
+                    }
+                    selectField.change();
+                },
+
+                resizeItem: resizeRule,
+                removable: true,
+                addButton: true,
+            }); 
+
+            // Voeg bestaande rijen toe aan de bewerkbare lijst
+            for (var i = 0; i < this.rules.length; i++) {
+                var rule = this.rules[i];
+                $("#node-input-rule-container").editableList('addItem', rule);
+            }
+        },
+        oneditsave: function () {
+            var rules = $("#node-input-rule-container").editableList('items');
+            var node = this;
+            node.rules = [];
+
+
+            rules.each(function (i) {
+                var rule = $(this);
+                // Get the selected operator
+                var type = rule.find("select").val();
+                // format rule
+                var r = { t: type };
+                if ((type == "eq")||(type == "neq")) {
+                    r.v = rule.find(".node-input-rule-value-1").typedInput('value');
+                    r.vt = rule.find(".node-input-rule-value-1").typedInput('type');
+                }
+                else if((type == "lt")||(type == "gt")) {
+                    r.v = rule.find(".node-input-rule-value-2").typedInput('value');
+                    r.vt = rule.find(".node-input-rule-value-2").typedInput('type');
+                }                    
+                else {
+                    r.v = rule.find(".node-input-rule-value-3").typedInput('value');
+                    r.vt = rule.find(".node-input-rule-value-3").typedInput('type');
+                }
+
+                r.propertyType = rule.find(".node-input-rule-property").typedInput('type');
+                r.property = rule.find(".node-input-rule-property").typedInput('value');
+
+                r.checkboxmanual = $(this).find('.node-input-checkboxmanual').prop('checked');
+                r.checkboxauto = $(this).find('.node-input-checkboxauto').prop('checked');
+
+                r.LogicText = $(this).find('.node-input-LogicText').val(); // Haal de waarde op uit het invoerveld
+
+                node.rules.push(r);
+            });
+
+            node.dirty = true; 
+            node.changed();
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="OperateLogic">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Naam</label>
+        <input type="text" id="node-input-name" placeholder="Naam">
+    </div>
+
+    <label for="node-input-rule-container"><i class="fa fa-cogs"></i> Rules</label>
+    <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
+    </div>
+
+    <div class="form-row1" style="display: flex; align-items: center; justify-content: space-between; width: 370px; margin-bottom: 15px;">
+        <label for="restartafterfault">Restart after fault</label>
+        <input type="checkbox" id="node-input-restartafterfault"style="width: 40px;">
+    </div>
+    
+    <div class="form-row2" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label for="checktime">Check interval (sec)</label>
+        <input type="number" id="node-input-checktime" style="margin-left: 173px; width: 60px;" min="1" >
+    </div>
+    
+    <div class="form-row3" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label for="node-input-initialisemode">Initialise mode</label>
+        <select id="node-input-initialisemode" style="margin-left: 182px; width: 85px;" >
+            <option value="manual">manual</option>
+            <option value="auto">auto</option>
+        </select>
+    </div>  
+
+    <div class="form-row4" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label>State on:</label>
+        <input type="text" id="node-input-stateon" style="margin-left: 100px; width: 200px;">
+        <input type="hidden" id="node-input-stateontype">
+    </div>
+
+    <div class="form-row5" style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label>State off:</label>
+        <input type="text" id="node-input-stateoff" style="margin-left: 100px; width: 200px;">
+        <input type="hidden" id="node-input-stateofftype">
+    </div>
+</script>
