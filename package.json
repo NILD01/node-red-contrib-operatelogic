@@ -5,11 +5,18 @@
       "OperateLogic": "OperateLogic.js"
     }
   },
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "Node-RED OperateLogic Node",
   "keywords": [
-    "node-red"
+    "node-red",
+    "operate",
+    "mode",
+    "rules"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NILD01/node-red-contrib-operatelogic/"
+  },
   "main": "OperateLogic.js",
   "directories": {
     "example": "example"

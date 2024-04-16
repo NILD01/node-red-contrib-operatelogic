@@ -46,9 +46,9 @@ Rules can be added/removed. In these rules, you can check flow or global variabl
 - `<`: less
 - `incl`: includes
 
-![Example Usage](img/rules.png)
+![rules.png](./img/rules.png)
 
-For every rule, you can choose in which mode it has to be checked or not checked.
+For every rule, you can choose in which mode it has to be checked.
 
 Connect the **"OperateLogic"** node with other nodes in your Node-RED flow. Send messages to the node to change the operation mode (`manual` or `automatic`) and give `start`/`stop` commands as in the example below.
 
