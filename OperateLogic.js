@@ -56,7 +56,7 @@ module.exports = function(RED) {
         startInterval();
 
         this.on("input", function(msg) {
-            if(((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("operateState" + nodeId) !== "running")){
+            if((msg.mode == "manual")||(msg.mode == "auto")){
                 context.set("mode" + nodeId, msg.payload);
                 node.send([null,null,{payload:context.get("mode" + nodeId)}]);
             }
