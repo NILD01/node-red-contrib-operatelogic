@@ -33,7 +33,8 @@ Start/stop commands will not be accepted from opposite modes. For example:
 
 ## Rules
 
-Rules can be added/removed. In these rules, you can check flow or global variables against string, number, boolean, flow variable, and global variable with operators. These operators are:
+Rules can be added/removed. In these rules, you can check flow or global variables against string, number, boolean, flow, and globals  with operators.
+These operators are:
 - `==`: equal
 - `!=`: not equal
 - `>`: greater

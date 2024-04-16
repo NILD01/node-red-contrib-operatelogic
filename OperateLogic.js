@@ -35,6 +35,7 @@ module.exports = function(RED) {
                     var defaultRules = [];
                     var rules = rulesconfig ? rulesconfig : defaultRules;
                     var checkprerequisites = comparison(rules,context.get("mode" + nodeId)) 
+                    node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
                     if (context.get("checkprerequisites" + nodeId) !== checkprerequisites){
                         context.set("checkprerequisites" + nodeId,checkprerequisites)
                         if (checkprerequisites == stateoff){
