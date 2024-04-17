@@ -119,7 +119,9 @@ module.exports = function(RED) {
                     rules[i].variable_check = rulecontext2.get(rules[i].v);
                 }
                 for (let i = 0; i < rules.length; i++) {
-                    rules[i].variable_check = convertState(rules[i].vt, rules[i].v)
+                    if ((rules[i].vt !== 'flow')&&(rules[i].vt !== 'global')){
+                        rules[i].variable_check = convertState(rules[i].vt, rules[i].v)
+                    }
                 }
             }
 
