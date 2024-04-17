@@ -21,6 +21,8 @@ Start/stop commands will not be accepted from opposite modes. For example:
 
 ## Settings
 
+<img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/rules2.png' >
+
 ### Rules
 Rules can be added/removed. In these rules, you can check flow or global variables against string, number, boolean, flow, or globals with operators:
 
@@ -29,6 +31,11 @@ Rules can be added/removed. In these rules, you can check flow or global variabl
 - `>`: greater
 - `<`: less
 - `incl`: includes
+
+For every rule, you can type your text of the logic in the textfield.
+The text can be visualised on the dashboard (see screenshot from dashboard below)
+
+<img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/screenshot2.png' >
 
 For every rule you can choose in which mode it has to be checked (`manual` or `auto`).
 
@@ -44,7 +51,7 @@ When a specific rule becomes false, an 'off' command is executed specified in se
 - **Initial Mode**: Initial operation mode (`manual` or `auto`). Restarts of Node-RED will keep the mode in memory. This is only for a complete restart of your Node-RED system.
 - **State On/Off**: The output command `"on"`/`"off"` can be modified to any boolean, string, or number.
 
-<img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/rules2.png' >
+
 
 All settings and rules can be adjusted at any time and will immediately take effect.
 
@@ -64,6 +71,8 @@ We have 3 outputs.
 Below is an example workflow demonstrating the use of the **"OperateLogic"** node:
 
 <img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/screenshot.png' >
+
+
 
 ```json
 [
