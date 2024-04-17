@@ -2,21 +2,9 @@
 
 This Node-RED project contains a custom Node-RED node called **"OperateLogic"** used for controlling a device based on logical rules and operation modes (`manual` or `automatic`) and commands (`start` or `stop`).
 
-## Usage
+## Inputs
 
-The **"OperateLogic"** node can be configured via the Node-RED GUI. Drag the node into your flow and configure the settings as desired:
-
-- **Check Interval**: Time interval (in seconds) for checking the rules.
-- **Rules**: Logical rules to be evaluated on the given check interval.
-- **Restart After Fault**: A new start command has to be given when checked. Unchecked it will automatically start again.
-- **Initial Mode**: Initial operation mode (`manual` or `automatic`). Restarts of Node-RED will keep the mode in memory. This is only for a complete restart of your Node-RED system.
-- **State On/Off**: The output command `"on"`/`"off"` can be modified to any boolean, string, or number.
-
-All settings can be adjusted at any time and will immediately take effect.
-
-## Operate Logic
-
-### Mode Settings
+### Mode:
 Mode can be set if:
 - `msg.mode = "manual"` or `"auto"`
 
@@ -31,21 +19,34 @@ Start/stop commands will not be accepted from opposite modes. For example:
 - In manual mode, a start/stop command from `msg.auto` will not be accepted.
 - In auto mode, a start/stop command from `msg.manual` will not be accepted.
 
-## Rules
+## Settings
 
-Rules can be added/removed. In these rules, you can check flow or global variables against string, number, boolean, flow, and globals  with operators.
-These operators are:
+### Rules
+Rules can be added/removed. In these rules, you can check flow or global variables against string, number, boolean, flow, or globals with operators:
+
 - `==`: equal
 - `!=`: not equal
 - `>`: greater
 - `<`: less
 - `incl`: includes
 
+For every rule you can choose in which mode it has to be checked (`manual` or `auto`).
+
+When a start command is issued, all specified rules will be checked according to the chosen mode. If all rules are true, the output (output 1) returns the "on" state specified in settings `state on`.
+When a specific rule becomes false, an 'off' command is executed specified in settings `state off`.
+
+### Settings
+
+- **Restart After Fault**: 
+  - Checked: When a specific rule becomes false, an 'off' command is executed. Once the rule (all rules) return to true, a new 'start' command can be initiated to restart.
+  - Unchecked: The system will automatically restart when all rules are true.
+- **Check Interval**: Time interval (in seconds) for checking the rules.
+- **Initial Mode**: Initial operation mode (`manual` or `auto`). Restarts of Node-RED will keep the mode in memory. This is only for a complete restart of your Node-RED system.
+- **State On/Off**: The output command `"on"`/`"off"` can be modified to any boolean, string, or number.
+
 <img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/rules2.png' >
 
-For every rule, you can choose in which mode it has to be checked.
-
-Connect the **"OperateLogic"** node with other nodes in your Node-RED flow. Send messages to the node to change the operation mode (`manual` or `auto`) and give `start`/`stop` commands as in the example flow below.
+All settings and rules can be adjusted at any time and will immediately take effect.
 
 ## Outputs
 
