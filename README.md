@@ -41,17 +41,28 @@ These operators are:
 - `<`: less
 - `incl`: includes
 
-![rules.png](img/rules.png)
+<img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/rules2.png' >
 
 For every rule, you can choose in which mode it has to be checked.
 
-Connect the **"OperateLogic"** node with other nodes in your Node-RED flow. Send messages to the node to change the operation mode (`manual` or `automatic`) and give `start`/`stop` commands as in the example below.
+Connect the **"OperateLogic"** node with other nodes in your Node-RED flow. Send messages to the node to change the operation mode (`manual` or `auto`) and give `start`/`stop` commands as in the example flow below.
 
+## Outputs
+
+We have 3 outputs.
+
+- **Output 1**: This output allows you to control your device based on the state specified in the settings (State On/Off).
+
+- **Output 2**: Provides all rule information in the form of an array.
+
+- **Output 3**: Displays the currently selected mode.
 
 
 ## Example Flow
 
-Below is an example flow demonstrating how to use the **"OperateLogic"** node:
+Below is an example workflow demonstrating the use of the **"OperateLogic"** node:
+
+<img src='https://raw.githubusercontent.com/NILD01/node-red-contrib-operatelogic/main/img/screenshot.png' >
 
 ```json
 [

@@ -66,7 +66,7 @@
                     var propertyRow = $('<div/>', { style: "padding-top: 5px; display: flex; align-items: center;" }).appendTo(container);
                     var LogicTextRow = $('<div/>', { style: "padding-top: 5px; display: flex; align-items: center;" }).appendTo(container);
 
-                    var fixedWidth = '150px';
+                    var fixedWidth = '235px';
                     var propertyField = $('<input/>', { class: "node-input-rule-property", type: "text", style: "margin-left: 5px; width:" + fixedWidth + ";"}).appendTo(propertyRow).typedInput({ default: rule.propertyType || 'flow', types: ['flow', 'global'] });
 
                     var fixedWidthselectField = '70px';
@@ -75,7 +75,7 @@
                         selectField.append($("<option></option>").val(operators[d].v).text(operators[d].t));
                     }           
 
-                    var fixedWidthvalueField = '150px';
+                    var fixedWidthvalueField = '235px';
                     var valueField1 = $('<input/>', { class: "node-input-rule-value-1", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'num','bool', 'flow', 'global'] });
                     var valueField2 = $('<input/>', { class: "node-input-rule-value-2", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'num', 'flow', 'global'] });
                     var valueField3 = $('<input/>', { class: "node-input-rule-value-3", type: "text", style: "margin-left: 5px; width:" + fixedWidthvalueField + ";", placeholder: "" }).appendTo(propertyRow).typedInput({ default: 'str', types: ['str', 'flow', 'global'] });  
