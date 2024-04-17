@@ -47,6 +47,7 @@ When a specific rule becomes false, an 'off' command is executed specified in se
 - **Restart After Fault**: 
   - Checked: When a specific rule becomes false, an 'off' command is executed. Once the rule (all rules) return to true, a new 'start' command can be initiated to restart.
   - Unchecked: The system will automatically restart when all rules are true.
+  --> This is only for auto mode. In manual mode a new start command is always necessary.
 - **Check Interval**: Time interval (in seconds) for checking the rules.
 - **Initial Mode**: Initial operation mode (`manual` or `auto`). Restarts of Node-RED will keep the mode in memory. This is only for a complete restart of your Node-RED system.
 - **State On/Off**: The output command `"on"`/`"off"` can be modified to any boolean, string, or number.

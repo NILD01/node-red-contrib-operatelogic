@@ -31,22 +31,34 @@ module.exports = function(RED) {
 
         function startInterval() {            
             interval = setInterval(function() {
+                var defaultRules = [];
+                var rules = rulesconfig ? rulesconfig : defaultRules;
+                var checkprerequisites = comparison(rules,context.get("mode" + nodeId));
+                const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
+                node.send([null,{payload:filteredrules},null])
+
+
+                if (context.get("mode" + nodeId) == "manual"){
+                    {restartafterfault==true}
+                    if (context.get("checkprerequisites" + nodeId) == stateoff){
+                        context.set("operateState" + nodeId, "not running")
+                    }
+                }
+
                 if (context.get("operateState" + nodeId) == "running"){
-                    var defaultRules = [];
-                    var rules = rulesconfig ? rulesconfig : defaultRules;
-                    var checkprerequisites = comparison(rules,context.get("mode" + nodeId)) 
-                    node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
+                    if (checkprerequisites == stateoff){
+                        node.status({ fill: "red", shape: "dot", text: "Missing" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
+                    }
+                    if (checkprerequisites == stateon){
+                        node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
+                    }    
                     if (context.get("checkprerequisites" + nodeId) !== checkprerequisites){
                         context.set("checkprerequisites" + nodeId,checkprerequisites)
                         if (checkprerequisites == stateoff){
-                            node.status({ fill: "red", shape: "dot", text: "Missing" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
-                            if(restartafterfault==true){
+                            if((restartafterfault==true)){
                                 context.set("operateState" + nodeId, "not running")
                             }
-                        }
-                        else{
-                            node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
-                        }
+                        }                       
                         const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
                         node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
                     }
@@ -77,11 +89,10 @@ module.exports = function(RED) {
             }     
             if ((mode == "auto") && (msg.auto == false)) {
                 msg.cmd = false
-            }
+            }        
        
             if (msg.fault == false) {
                 if (msg.cmd == false){
-                    clearInterval(interval);
                     context.set("operateState" + nodeId, "not running")
                     context.set("checkprerequisites" + nodeId,stateoff)
                     node.status({ fill: "red", shape: "dot", text: "not running" });
@@ -95,13 +106,15 @@ module.exports = function(RED) {
                         node.status({ fill: "red", shape: "dot", text: "Missing" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
                     }
                     else{
+                        context.set("operateState" + nodeId, "running")
                         clearInterval(interval);
                         startInterval();
-                        context.set("operateState" + nodeId, "running")
                         node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
+                        const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
+                        node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
                     }
                     const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
-                    node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
+                    node.send([null,{payload:filteredrules},null]);
                 }
             }
         });
