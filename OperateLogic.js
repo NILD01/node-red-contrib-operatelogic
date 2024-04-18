@@ -15,19 +15,13 @@ module.exports = function(RED) {
         var context = this.context().flow;
         var nodeId = node.id;
 
-
         var stateon = convertState(stateontype, stateonm)
         var stateoff = convertState(stateofftype, stateoffm)
 
-        //Trigger Once
-        var triggerOnce = context.get("triggerOnce" + nodeId) || false
-        if (triggerOnce == false){
-            context.set("triggerOnce" + nodeId, true)
-            mode = context.get("mode" + nodeId) || initialisemode
-            context.set("mode" + nodeId, mode);
-            node.send([null,null,{payload:mode}]);
-            node.status({ fill: "blue", shape: "dot", text: "waiting for trigger" });
-        }
+        mode = context.get("mode" + nodeId) || initialisemode
+        context.set("mode" + nodeId, mode);
+        node.send([null,null,{payload:mode}]);
+        node.status({ fill: "blue", shape: "dot", text: "waiting for trigger" });        
 
         function startInterval() {            
             interval = setInterval(function() {
@@ -37,28 +31,18 @@ module.exports = function(RED) {
                 const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
                 node.send([null,{payload:filteredrules},null])
 
-
-                if (context.get("mode" + nodeId) == "manual"){
-                    {restartafterfault==true}
-                    if (context.get("checkprerequisites" + nodeId) == stateoff){
-                        context.set("operateState" + nodeId, "not running")
-                    }
-                }
-
                 if (context.get("operateState" + nodeId) == "running"){
-                    if (checkprerequisites == stateoff){
-                        node.status({ fill: "red", shape: "dot", text: "Missing" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
-                    }
-                    if (checkprerequisites == stateon){
-                        node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
-                    }    
-                    if (context.get("checkprerequisites" + nodeId) !== checkprerequisites){
-                        context.set("checkprerequisites" + nodeId,checkprerequisites)
+                    if (context.get("output" + nodeId) !== checkprerequisites){
+                        context.set("output" + nodeId,checkprerequisites)
                         if (checkprerequisites == stateoff){
-                            if((restartafterfault==true)){
+                            node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
+                            if((restartafterfault==true)||(context.get("mode" + nodeId) == "manual")){
                                 context.set("operateState" + nodeId, "not running")
                             }
-                        }                       
+                        }  
+                        else{
+                            node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
+                        }                     
                         const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
                         node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
                     }
@@ -69,9 +53,25 @@ module.exports = function(RED) {
         startInterval();
 
         this.on("input", function(msg) {
-            if((msg.mode == "manual")||(msg.mode == "auto")){
+            if((msg.mode == "manual")||(msg.mode == "auto")){                
                 context.set("mode" + nodeId, msg.mode);
-                node.send([null,null,{payload:context.get("mode" + nodeId)}]);
+                var defaultRules = [];
+                var rules = rulesconfig ? rulesconfig : defaultRules;
+                var checkprerequisites = comparison(rules,context.get("mode" + nodeId));
+                const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
+                node.send([null,{payload:filteredrules},{payload:context.get("mode" + nodeId)}])
+            }
+            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output" + nodeId) == stateoff)){
+                node.status({ fill: "red", shape: "dot", text: "not running" });
+                context.set("operateState" + nodeId, "not running")
+            }
+            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output" + nodeId) == stateon)&&(checkprerequisites == stateoff)){
+                node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
+                context.set("operateState" + nodeId, "not running")
+                node.send([{payload: checkprerequisites},null,null])
+            }
+            if (context.get("operateState" + nodeId) == "running"){
+                node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
             }
 
             msg.fault = false
@@ -94,16 +94,16 @@ module.exports = function(RED) {
             if (msg.fault == false) {
                 if (msg.cmd == false){
                     context.set("operateState" + nodeId, "not running")
-                    context.set("checkprerequisites" + nodeId,stateoff)
+                    context.set("output" + nodeId,stateoff)
                     node.status({ fill: "red", shape: "dot", text: "not running" });
                     node.send([{payload:stateoff},null],{payload:context.get("mode" + nodeId)});
                 } else if ((msg.cmd == true) && (context.get("operateState" + nodeId) !== "running")) {
                     var defaultRules = [];
                     var rules = rulesconfig ? rulesconfig : defaultRules;
                     var checkprerequisites = comparison(rules,context.get("mode" + nodeId)) 
-                    context.set("checkprerequisites" + nodeId,checkprerequisites)
+                    context.set("output" + nodeId,checkprerequisites)
                     if (checkprerequisites == stateoff){
-                        node.status({ fill: "red", shape: "dot", text: "Missing" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
+                        node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
                     }
                     else{
                         context.set("operateState" + nodeId, "running")
