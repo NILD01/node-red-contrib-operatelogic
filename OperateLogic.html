@@ -5,9 +5,9 @@
         defaults: {
             name: {value: "" },
             rules: {},
-            restartafterfault:  { value: ""},
+            restartafterfault:  { value: true},
             checktime:  { value: 1, required: true} ,
-            initialisemode: { value: ""},
+            savestate: { value: true},
             stateon: { value: "", required: true},
             stateontype: { value: "str"},   
             stateoff: { value: "", required: true},
@@ -234,15 +234,12 @@
         <label for="checktime">Check interval (sec)</label>
         <input type="number" id="node-input-checktime" style="margin-left: 173px; width: 60px;" min="1" >
     </div>
-    
-    <div class="form-row3" style="display: flex; align-items: center; margin-bottom: 15px;">
-        <label for="node-input-initialisemode">Initialise mode</label>
-        <select id="node-input-initialisemode" style="margin-left: 182px; width: 85px;" >
-            <option value="manual">manual</option>
-            <option value="auto">auto</option>
-        </select>
-    </div>  
 
+    <div class="form-row3" style="display: flex; align-items: center; justify-content: space-between; width: 370px; margin-bottom: 15px;">
+        <label for="savestate">Save state</label>
+        <input type="checkbox" id="node-input-savestate"style="width: 40px;">
+    </div>
+    
     <div class="form-row4" style="display: flex; align-items: center; margin-bottom: 15px;">
         <label>State on:</label>
         <input type="text" id="node-input-stateon" style="margin-left: 100px; width: 200px;">

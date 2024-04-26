@@ -1,122 +1,156 @@
+var fs = require('fs');
+var path = require('path');
+
+
 module.exports = function(RED) {
     function OperateLogicNode(config) {
         RED.nodes.createNode(this, config);
-        var checktime = config.checktime *1000
-        var rulesconfig= config.rules
-        var restartafterfault = config.restartafterfault;
-        var initialisemode = config.initialisemode
-        var stateonm = config.stateon
-        var stateontype= config.stateontype
-        var stateoffm = config.stateoff
-        var stateofftype= config.stateofftype
+        const node = this;
+        const checktime = config.checktime *1000
+        const rulesconfig= config.rules
+        const restartafterfault = config.restartafterfault;
+        const savestate = config.savestate;
+        const stateonm = config.stateon
+        const stateontype= config.stateontype
+        const stateoffm = config.stateoff
+        const stateofftype= config.stateofftype
 
-        var node = this;
+        const context = this.context();
+        const stateon = convertState(stateontype, stateonm)
+        const stateoff = convertState(stateofftype, stateoffm)
+
         var interval;
-        var context = this.context().flow;
-        var nodeId = node.id;
 
-        var stateon = convertState(stateontype, stateonm)
-        var stateoff = convertState(stateofftype, stateoffm)
+        startsetTimeout()
 
-        mode = context.get("mode" + nodeId) || initialisemode
-        context.set("mode" + nodeId, mode);
-        node.send([null,null,{payload:mode}]);
-        node.status({ fill: "blue", shape: "dot", text: "waiting for trigger" });        
+        function startsetTimeout() {  
+            setTimeout(function() { 
+                if (savestate === true){
+                    const stateDir = path.join(RED.settings.userDir, 'operate-logic-node-state');
+                    if (!fs.existsSync(stateDir)) {
+                        fs.mkdirSync(stateDir);
+                    }
+                    const stateFile = path.join(stateDir, `${node.id}.json`)
+                    // Load state from file during initialization
+                    if (fs.existsSync(stateFile)) {
+                        const savedState = JSON.parse(fs.readFileSync(stateFile))
+                        context.set("mode", savedState.mode)
+                        context.set("output", savedState.output)
+                        context.set("operateState", savedState.operateState)
+                    }
+                }
+                //No state from file? --> Init
+                if (context.get("mode") === undefined || context.get("output") === undefined || context.get("operateState") === undefined || savestate === false){
+                    ClearData()
+                    context.set("mode", "manual")
+                    context.set("output", stateoff)
+                    context.set("operateState", "not running")
+                    NodeStatusInit()
+                }                   
+                node.send([{payload:context.get("output")},null,{payload:context.get("mode")}]);
+
+                startInterval();    
+
+            }, 1000); 
+        }  
 
         function startInterval() {            
             interval = setInterval(function() {
-                var defaultRules = [];
-                var rules = rulesconfig ? rulesconfig : defaultRules;
-                var checkprerequisites = comparison(rules,context.get("mode" + nodeId));
-                const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
-                node.send([null,{payload:filteredrules},null])
+                let defaultRules = [];
+                let rules = rulesconfig ? rulesconfig : defaultRules;
+                var checkprerequisites = comparison(rules,context.get("mode"));
+                var filteredrules= filterPayloadByMode(rules, context.get("mode"));
+                node.send([null,{payload:filteredrules},{payload : context.get("mode")}])
 
-                if (context.get("operateState" + nodeId) == "running"){
-                    if (context.get("output" + nodeId) !== checkprerequisites){
-                        context.set("output" + nodeId,checkprerequisites)
+                if (context.get("operateState") == "running"){
+                    if (context.get("output") !== checkprerequisites){
+                        context.set("output",checkprerequisites)
+                        SaveData({output: checkprerequisites}) 
                         if (checkprerequisites == stateoff){
-                            node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
-                            if((restartafterfault==true)||(context.get("mode" + nodeId) == "manual")){
-                                context.set("operateState" + nodeId, "not running")
+                            NodeStatusMissedPrerequisites()
+                            if((restartafterfault==true)||(context.get("mode") == "manual")){
+                                context.set("operateState", "not running")
+                                SaveData({operateState: "not running"})  
                             }
                         }  
                         else{
-                            node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
-                        }                     
-                        const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
-                        node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
+                            NodeStatusRunning()
+                        }                                             
+                        node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode")}]);
                     }
                 }
             }, checktime);
         }
 
-        startInterval();
-
         this.on("input", function(msg) {
+
             if((msg.mode == "manual")||(msg.mode == "auto")){                
-                context.set("mode" + nodeId, msg.mode);
-                var defaultRules = [];
-                var rules = rulesconfig ? rulesconfig : defaultRules;
-                var checkprerequisites = comparison(rules,context.get("mode" + nodeId));
-                const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
-                node.send([null,{payload:filteredrules},{payload:context.get("mode" + nodeId)}])
+                context.set("mode", msg.mode);
+                let defaultRules = [];
+                let rules = rulesconfig ? rulesconfig : defaultRules;
+                var checkprerequisites = comparison(rules,context.get("mode"));
+                let filteredrules= filterPayloadByMode(rules, context.get("mode"));
+                node.send([null,{payload:filteredrules},{payload:context.get("mode")}])
             }
-            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output" + nodeId) == stateoff)){
-                node.status({ fill: "red", shape: "dot", text: "not running" });
-                context.set("operateState" + nodeId, "not running")
+            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output") == stateoff)){
+                NodeStatusNotRunning()
+                context.set("operateState", "not running")
+
             }
-            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output" + nodeId) == stateon)&&(checkprerequisites == stateoff)){
-                node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
-                context.set("operateState" + nodeId, "not running")
+            if (((msg.mode == "manual")||(msg.mode == "auto"))&&(context.get("output") == stateon)&&(checkprerequisites == stateoff)){
+                NodeStatusMissedPrerequisites()
+                context.set("operateState", "not running")
                 node.send([{payload: checkprerequisites},null,null])
             }
-            if (context.get("operateState" + nodeId) == "running"){
-                node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
+            if (context.get("operateState") == "running"){
+                NodeStatusRunning()
             }
 
             msg.fault = false
-
-            mode = context.get("mode" + nodeId)
-   
-            if ((mode == "manual") && (msg.manual == true)) {
+ 
+            if ((context.get("mode") == "manual") && (msg.manual == true)) {
                 msg.cmd = true
             } 
-            if ((mode == "manual") && (msg.manual == false)) {
+            if ((context.get("mode") == "manual") && (msg.manual == false)) {
                 msg.cmd = false
             }      
-            if ((mode == "auto") && (msg.auto == true)) {
+            if ((context.get("mode") == "auto") && (msg.auto == true)) {
                 msg.cmd = true
             }     
-            if ((mode == "auto") && (msg.auto == false)) {
+            if ((context.get("mode") == "auto") && (msg.auto == false)) {
                 msg.cmd = false
-            }        
+            }    
        
             if (msg.fault == false) {
                 if (msg.cmd == false){
-                    context.set("operateState" + nodeId, "not running")
-                    context.set("output" + nodeId,stateoff)
-                    node.status({ fill: "red", shape: "dot", text: "not running" });
-                    node.send([{payload:stateoff},null],{payload:context.get("mode" + nodeId)});
-                } else if ((msg.cmd == true) && (context.get("operateState" + nodeId) !== "running")) {
-                    var defaultRules = [];
+                    context.set("operateState", "not running")
+                    context.set("output",stateoff)
+                    NodeStatusNotRunning()
+                    node.send([{payload:stateoff},null],{payload:context.get("mode")});
+                } else if ((msg.cmd == true) && (context.get("operateState") !== "running")) {
+                    let defaultRules = [];
                     var rules = rulesconfig ? rulesconfig : defaultRules;
-                    var checkprerequisites = comparison(rules,context.get("mode" + nodeId)) 
-                    context.set("output" + nodeId,checkprerequisites)
+                    var checkprerequisites = comparison(rules,context.get("mode")) 
+                    context.set("output",checkprerequisites)
                     if (checkprerequisites == stateoff){
-                        node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode" });
+                        NodeStatusMissedPrerequisites()
                     }
                     else{
-                        context.set("operateState" + nodeId, "running")
+                        context.set("operateState", "running")
                         clearInterval(interval);
                         startInterval();
-                        node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode" + nodeId)+ " " + "mode"});
-                        const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
-                        node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode" + nodeId)}]);
+                        NodeStatusRunning()
+                        const filteredrules= filterPayloadByMode(rules, context.get("mode"));
+                        node.send([{payload:checkprerequisites},{payload:filteredrules},{payload:context.get("mode")}]);
                     }
-                    const filteredrules= filterPayloadByMode(rules, context.get("mode" + nodeId));
+                    const filteredrules= filterPayloadByMode(rules, context.get("mode"));
                     node.send([null,{payload:filteredrules},null]);
                 }
             }
+
+            SaveData({mode: context.get("mode")}) 
+            SaveData({output: context.get("output")}) 
+            SaveData({operateState: context.get("operateState")})  
         });
 
         this.on("close", function() {
@@ -126,9 +160,9 @@ module.exports = function(RED) {
         function comparison (rules, mode){
             if (rules.length > 0){
                 for (let i = 0; i < rules.length; i++) {
-                    var rulecontext1 = (rules[i].propertyType === 'flow') ? node.context().flow : node.context().global;
+                    let rulecontext1 = (rules[i].propertyType === 'flow') ? node.context().flow : node.context().global;
                     rules[i].variable_value = rulecontext1.get(rules[i].property);
-                    var rulecontext2 = (rules[i].vt === 'flow') ? node.context().flow : node.context().global;
+                    let rulecontext2 = (rules[i].vt === 'flow') ? node.context().flow : node.context().global;
                     rules[i].variable_check = rulecontext2.get(rules[i].v);
                 }
                 for (let i = 0; i < rules.length; i++) {
@@ -222,6 +256,63 @@ module.exports = function(RED) {
                 return array.filter(item => item.checkboxauto === true);
             }
         }   
+
+        function SaveData(state) {
+            if (savestate === true){
+                const stateFile = path.join(RED.settings.userDir, 'operate-logic-node-state', `${node.id}.json`);        
+                let data = {};        
+        
+                if (fs.existsSync(stateFile)) {
+                    const fileContent = fs.readFileSync(stateFile);
+                    data = JSON.parse(fileContent);
+                }        
+        
+                let isDifferent = false;
+                for (let key in state) {
+                    if (data[key] !== state[key]) {
+                        data[key] = state[key];
+                        isDifferent = true;
+                    }
+                }
+        
+                if (isDifferent) {
+                    const content = JSON.stringify(data);         
+        
+                    try {
+                        fs.writeFileSync(stateFile, content);
+                    } catch (err) {
+                        console.error(`Error creating or writing to ${stateFile}:`, err);
+                    }
+                }
+            }
+        }
+
+        function ClearData() {
+            const stateFile = path.join(RED.settings.userDir, 'operate-logic-node-state', `${node.id}.json`);        
+        
+            if (fs.existsSync(stateFile)) {
+                try {
+                    fs.unlinkSync(stateFile);
+                    //console.log(`Successfully deleted ${stateFile}`);
+                } catch (err) {
+                    console.error(`Error deleting ${stateFile}:`, err);
+                }
+            }
+        }
+
+        function NodeStatusInit(){
+            node.status({ fill: "blue", shape: "dot", text: "Initialised - waiting for trigger" }); 
+        }
+        function NodeStatusRunning(){
+            node.status({ fill: "green", shape: "dot", text: "Running"  + " " + "in" + " " + context.get("mode")+ " " + "mode"});
+        }
+        function NodeStatusNotRunning(){
+            node.status({ fill: "red", shape: "dot", text: "not running" });
+        }
+        function NodeStatusMissedPrerequisites(){
+            node.status({ fill: "red", shape: "dot", text: "Missed" + " " + "prerequisites" + " " + "in" + " " + context.get("mode")+ " " + "mode" });
+        }
+
     }
     RED.nodes.registerType("OperateLogic",OperateLogicNode);
 };

@@ -1,5 +1,7 @@
 # Node-RED OperateLogic Node
 
+(read version information below)
+
 This Node-RED project contains a custom Node-RED node called **"OperateLogic"** used for controlling a device based on logical rules and operation modes (`manual` or `automatic`) and commands (`start` or `stop`).
 
 ## Inputs
@@ -45,16 +47,20 @@ When a specific rule becomes false, an 'off' command is executed specified in se
 ### Settings
 
 - **Restart After Fault**: 
-  - Checked: When a specific rule becomes false, an 'off' command is executed. Once the rule (all rules) return to true, a new 'start' command can be initiated to restart.
-  - Unchecked: The system will automatically restart when all rules are true.
-  --> This is only for auto mode. In manual mode a new start command is always necessary.
+  - Checked: The system turns off when a rule is not met. It can be turned on again with a start command when all rules are met.
+
+  - Unchecked: The system will restart on its own when all rules are met. This only applies in auto mode. In manual mode, you always need to give a new start command.
+
+  - Remember, the automatic restart function will still work after switching to manual mode and back to auto mode if the device is running during the mode switch. However, if you switch back to auto mode and a rule is missing, the device will obviously stop, but it will not automatically restart when the rule is back to being OK. You will need to issue a new start command to restart the device.”
+
+
+
 - **Check Interval**: Time interval (in seconds) for checking the rules.
-- **Initial Mode**: Initial operation mode (`manual` or `auto`). Restarts of Node-RED will keep the mode in memory. This is only for a complete restart of your Node-RED system.
-- **State On/Off**: The output command `"on"`/`"off"` can be modified to any boolean, string, or number.
+- **Save state**:
+  - Checked: The current mode and "on"`/`"off" state will be saved during restarts of node red. All settings and rules can be adjusted at any time and will immediately take effect. 
 
+  - Unchecked: During a restart of Node-RED or changes in the node’s settings, it will not remember its state and the node will initialize to “manual” mode with an “off” state.
 
-
-All settings and rules can be adjusted at any time and will immediately take effect.
 
 ## Outputs
 
@@ -65,6 +71,11 @@ We have 3 outputs.
 - **Output 2**: Provides all rule information in the form of an array.
 
 - **Output 3**: Displays the currently selected mode.
+
+
+## Versions:
+
+- **V1.0.27**: The “initialise mode” setting has been removed and the “Save state” setting has been added. Please refer to the “Save state” setting above for more information.
 
 
 ## Example Flow
